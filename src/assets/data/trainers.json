@@ -1,0 +1,29 @@
+[
+  {
+    "id": "t1",
+    "name": "Sarah Jenkins",
+    "specialty": "HIIT & Strength",
+    "branch": "Downtown Branch",
+    "email": "sarah@titanfitness.com",
+    "phone": "+962 7 9111 1111",
+    "isActive": true
+  },
+  {
+    "id": "t2",
+    "name": "Marcus Lee",
+    "specialty": "Yoga",
+    "branch": "Downtown Branch",
+    "email": "marcus@titanfitness.com",
+    "phone": "+962 7 9111 2222",
+    "isActive": true
+  },
+  {
+    "id": "t3",
+    "name": "Elena Rodriguez",
+    "specialty": "Cycling",
+    "branch": "Uptown Branch",
+    "email": "elena@titanfitness.com",
+    "phone": "+962 7 9111 3333",
+    "isActive": true
+  }
+]

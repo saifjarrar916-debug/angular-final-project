@@ -1,0 +1,62 @@
+[
+  {
+    "id": "c1",
+    "name": "HIIT Core Blast",
+    "branch": "Downtown Branch",
+    "trainer": "Sarah Jenkins",
+    "studio": "Studio A",
+    "date": "2023-10-27",
+    "startTime": "06:00 AM",
+    "capacity": 30,
+    "duration": 45,
+    "status": "Full",
+    "description": "",
+    "enrolled": 28,
+    "waitlist": 3
+  },
+  {
+    "id": "c2",
+    "name": "Vinyasa Flow Yoga",
+    "branch": "Downtown Branch",
+    "trainer": "Marcus Lee",
+    "studio": "Zen Room",
+    "date": "2023-10-27",
+    "startTime": "08:00 AM",
+    "capacity": 20,
+    "duration": 60,
+    "status": "Active",
+    "description": "",
+    "enrolled": 15,
+    "waitlist": 0
+  },
+  {
+    "id": "c3",
+    "name": "Lunchtime Spin",
+    "branch": "Downtown Branch",
+    "trainer": "Elena Rodriguez",
+    "studio": "Cycle Studio",
+    "date": "2023-10-27",
+    "startTime": "12:00 PM",
+    "capacity": 40,
+    "duration": 45,
+    "status": "Full",
+    "description": "",
+    "enrolled": 40,
+    "waitlist": 3
+  },
+  {
+    "id": "c4",
+    "name": "Power Yoga",
+    "branch": "Uptown Branch",
+    "trainer": "Mike T.",
+    "studio": "Studio B",
+    "date": "2023-10-27",
+    "startTime": "10:30 AM",
+    "capacity": 20,
+    "duration": 45,
+    "status": "Upcoming",
+    "description": "",
+    "enrolled": 15,
+    "waitlist": 0
+  }
+]

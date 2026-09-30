@@ -1,0 +1,35 @@
+[
+  {
+    "id": "p1",
+    "name": "Annual Pro Plan",
+    "price": 899,
+    "durationMonths": 12,
+    "isPublished": true,
+    "maxFreezeDays": 60,
+    "maxFreezes": 3,
+    "guestPassQuota": 5,
+    "accessScope": "All Branches"
+  },
+  {
+    "id": "p2",
+    "name": "Monthly Plus",
+    "price": 89,
+    "durationMonths": 1,
+    "isPublished": true,
+    "maxFreezeDays": 30,
+    "maxFreezes": 2,
+    "guestPassQuota": 3,
+    "accessScope": "All Branches"
+  },
+  {
+    "id": "p3",
+    "name": "Downtown Basic",
+    "price": 399,
+    "durationMonths": 12,
+    "isPublished": false,
+    "maxFreezeDays": 30,
+    "maxFreezes": 1,
+    "guestPassQuota": 2,
+    "accessScope": "Downtown Only"
+  }
+]
