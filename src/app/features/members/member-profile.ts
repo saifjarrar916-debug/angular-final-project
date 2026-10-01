@@ -15,7 +15,43 @@ import { EditMemberDialog } from '../../shared/components/edit-member-dialog/edi
 </button></div>
  <div class="two-col"><div><section class="card section-card"><div style="display:flex;justify-content:space-between"><div><div style="width:80px;height:80px;background:#dfe5ef;border-radius:5px"></div><h2>{{m.name}}</h2><div class="muted">ID: {{m.id}}</div></div><app-status-badge [status]="m.status"/></div><div class="row-list" style="margin-top:15px"><div class="row">✉ {{m.email}}</div><div class="row">☎ {{m.phone}}</div><div class="row">⌖ {{m.address}}</div><div class="row">▣ Joined: {{m.joinedDate|date}}</div></div></section>
  <section class="card section-card" style="margin-top:16px"><h2 class="section-title">Current Plan</h2><h3>{{m.planName}}</h3><b>{{m.planPrice|currency}} / year</b><p class="muted">Renews {{m.planEndDate|date}}</p><a class="btn" [routerLink]="['/members',m.id,'freeze']">Freeze Membership</a></section></div>
- <div><section class="card section-card"><h2 class="section-title">Freezes Used</h2><b>{{m.freezesUsed}} / {{m.maxFreezes}}</b><p class="muted">{{m.freezesUsed|freezeAllowance:m.maxFreezes}}</p></section><section class="card section-card" style="margin-top:16px"><h2 class="section-title">Guest Passes</h2><b>{{m.guestPassesUsed}} / {{m.guestPassQuota}}</b><p class="muted">{{m.guestPassQuota-m.guestPassesUsed}} passes remaining</p></section><section class="card section-card" style="margin-top:16px"><h2 class="section-title">Recent Activity</h2><div class="row-list"><div class="row">Facility Check-in <span>Today, 06:45 AM</span></div><div class="row">Class Attendance <span>Oct 18, 05:30 PM</span></div><div class="row">Facility Check-in <span>Oct 16, 06:40 AM</span></div></div></section></div></div>}@else{<div class="empty">Loading member...</div>}</div>`
+ <div><section class="card section-card"><h2 class="section-title">Freezes Used</h2><b>{{m.freezesUsed}} / {{m.maxFreezes}}</b><p class="muted">{{m.freezesUsed|freezeAllowance:m.maxFreezes}}</p></section><section class="card section-card" style="margin-top:16px">
+
+  <h2 class="section-title">Guest Passes</h2>
+
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <b>{{m.guestPassesUsed}} / {{m.guestPassQuota}}</b>
+  </div>
+
+  <!-- Progress Bar -->
+  <div
+    style="
+      width:100%;
+      height:5px;
+      background:#e3e7ee;
+      border-radius:5px;
+      margin-top:12px;
+      overflow:hidden;
+    "
+  >
+    <div
+      style="
+        height:100%;
+        background:#4058b8;
+        border-radius:5px;
+        transition:width 0.3s ease;
+      "
+      [style.width.%]="m.guestPassQuota > 0
+        ? (m.guestPassesUsed / m.guestPassQuota) * 100
+        : 0"
+    ></div>
+  </div>
+
+  <p class="muted" style="text-align:right; font-size:11px;">
+    {{m.guestPassQuota - m.guestPassesUsed}} passes remaining
+  </p>
+
+</section><section class="card section-card" style="margin-top:16px"><h2 class="section-title">Recent Activity</h2><div class="row-list"><div class="row">Facility Check-in <span>Today, 06:45 AM</span></div><div class="row">Class Attendance <span>Oct 18, 05:30 PM</span></div><div class="row">Facility Check-in <span>Oct 16, 06:40 AM</span></div></div></section></div></div>}@else{<div class="empty">Loading member...</div>}</div>`
 })
 export class MemberProfile {
     private dialog = inject(MatDialog);
