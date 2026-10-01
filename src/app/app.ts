@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
   template:`
   <div class="shell">
     <aside class="sidebar">
-      <div class="brand"><div class="brand-mark">✦</div><div><b>Titan Fitness</b><small>STAFF PORTAL</small></div></div>
+      <div routerLink="/dashboard" class="brand"><div class="brand-mark">✦</div><div><b>Titan Fitness</b><small>STAFF PORTAL</small></div></div>
       <button class="checkin-btn" (click)="openCheckin()">＋ New Check-in</button>
       <nav>
         <a routerLink="/dashboard" routerLinkActive="selected">▦ <span>Dashboard</span></a>
