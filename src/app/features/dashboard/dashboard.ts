@@ -18,12 +18,12 @@ import { ClassService } from '../classes/class.service';
         </div>
         <section class="card section-card" style="margin-top:16px">
           <div style="display:flex;justify-content:space-between"><h2 class="section-title">Upcoming Classes</h2><a class="link" routerLink="/classes">View Schedule</a></div>
-          <div class="row-list">@for(c of upcoming();track c.id){<div class="row"><div><b>{{c.startTime}}</b><div class="small muted">{{c.name}} · {{c.studio}} · {{c.trainer}}</div></div><div><span class="small">{{c.enrolled}}/{{c.capacity}} Enrolled</span> <app-status-badge [status]="c.status"/></div></div>}</div>
+          <div class="row-list">@for(c of upcoming();track c.id){<div class="row"><div><b>{{c.startTime}}</b><div class="small muted">{{c.name}} · {{c.studio}} · {{c.trainer}}</div></div><div><span class="small">{{c.enrolled}}/{{c.capacity}} Enrolled</span> <app-status-badge [status]="c.status"/></div></div>} @empty {<div class="empty">No upcoming classes.</div>}</div>
         </section>
       </div>
       <section class="card section-card"><h2 class="section-title">Quick Actions</h2><div class="row-list">
         <a class="row link" routerLink="/members">♙　New Member</a>
-        <a class="row link" routerLink="/classes">⚒　Register Class</a>
+        <a class="row link" routerLink="/classes/new">⚒　Register Class</a>
         <a class="row link" routerLink="/trainers/new">♟　Add Trainer</a>
       </div></section>
     </div>
