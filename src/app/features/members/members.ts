@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -7,6 +7,7 @@ import { StatusBadge } from '../../shared/components/status-badge/status-badge';
 import { Paginator } from '../../shared/components/paginator/paginator';
 import { FilterDialog } from '../../shared/components/filter-dialog/filter-dialog';
 import { HighlightPipe } from '../../shared/pipes/highlight.pipe';
+import { CheckInService } from '../dashboard/checkin.service';
 import { AddMemberDialog } from '../../shared/components/add-member-dialog/add-member-dialog';
 
 @Component({
@@ -60,13 +61,14 @@ import { AddMemberDialog } from '../../shared/components/add-member-dialog/add-m
 
       <div class="toolbar">
 
-        <input
-          class="input"
-          style="max-width:360px"
-          placeholder="Search members..."
-          [value]="service.search()"
-          (input)="service.search.set($any($event.target).value);load()"
-        >
+        <input 
+  class="input" 
+  style="max-width:360px" 
+  placeholder="Search members..." 
+  aria-label="Search members" 
+  [value]="service.search()" 
+  (input)="onSearch($any($event.target).value)"
+>
 
       </div>
 
@@ -115,7 +117,7 @@ import { AddMemberDialog } from '../../shared/components/add-member-dialog/add-m
                 </td>
 
                 <td>
-                  Today, 08:30 AM
+                  {{ checkins.lastVisit(m.name) }}
                 </td>
 
                 <td>
@@ -183,6 +185,8 @@ export class Members {
 
   service = inject(MemberService);
 
+  checkins = inject(CheckInService);
+
   private dialog = inject(MatDialog);
 
   members = signal<any[]>([]);
@@ -195,13 +199,8 @@ export class Members {
 
 
   constructor() {
-
-    effect(() => {
-      this.load();
-    });
-
-  }
-
+  this.load();
+}
 
   load() {
 
@@ -216,6 +215,11 @@ export class Members {
     });
 
   }
+  onSearch(value: string) {
+  this.service.search.set(value);
+  this.service.page.set(1);
+  this.load();
+}
 
 
   changePage(p: number) {
