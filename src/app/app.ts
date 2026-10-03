@@ -1,8 +1,11 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, HostListener, inject, signal } from '@angular/core';
+import { Router, NavigationEnd, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import { NewCheckinDialog } from './shared/components/new-checkin-dialog/new-checkin-dialog';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
+import { ToastService } from './shared/services/toast.service';
 
 @Component({
   selector:'app-root',
@@ -10,10 +13,11 @@ import { FormsModule } from '@angular/forms';
   imports:[RouterOutlet,RouterLink,RouterLinkActive,FormsModule],
   template:`
   <div class="shell">
-    <aside class="sidebar">
-      <div routerLink="/dashboard" class="brand"><div class="brand-mark">✦</div><div><b>Titan Fitness</b><small>STAFF PORTAL</small></div></div>
-      <button class="checkin-btn" (click)="openCheckin()">＋ New Check-in</button>
-      <nav>
+    @if (menuOpen()) { <div class="backdrop" (click)="menuOpen.set(false)"></div> }
+    <aside class="sidebar" [class.open]="menuOpen()">
+      <a routerLink="/dashboard" class="brand" (click)="menuOpen.set(false)" aria-label="Titan Fitness dashboard"><div class="brand-mark">✦</div><div><b>Titan Fitness</b><small>STAFF PORTAL</small></div></a>
+      <button type="button" class="checkin-btn" aria-label="New check-in" (click)="openCheckin()"><span>＋</span> <span class="label">New Check-in</span></button>
+      <nav aria-label="Main navigation" (click)="menuOpen.set(false)">
         <a routerLink="/dashboard" routerLinkActive="selected">▦ <span>Dashboard</span></a>
         <a routerLink="/members" routerLinkActive="selected">♙ <span>Members</span></a>
         <a routerLink="/classes" routerLinkActive="selected">⚒ <span>Classes</span></a>
@@ -23,18 +27,22 @@ import { FormsModule } from '@angular/forms';
     </aside>
     <main class="main">
       <header class="topbar">
+        <button type="button" class="menu-btn" aria-label="Toggle menu" [attr.aria-expanded]="menuOpen()" (click)="menuOpen.set(!menuOpen())"><span></span><span></span><span></span></button>
         <div class="branch">Downtown Branch</div>
        <input
   class="global-search"
   placeholder="Search members, classes..."
   aria-label="Global search"
   [(ngModel)]="searchText"
-  (ngModelChange)="searchPage($event)"
+  (ngModelChange)="onSearchInput($event)"
 >
-        <div class="top-icons">♧　□　●</div>
+        <div class="top-icons" aria-hidden="true">♧　□　●</div>
       </header>
       <router-outlet />
     </main>
+  </div>
+  <div class="toast-region" aria-live="polite">
+    @if (toast.message()) { <div class="toast">{{ toast.message() }}</div> }
   </div>
   `,
   styles:[`
@@ -44,108 +52,73 @@ import { FormsModule } from '@angular/forms';
     nav{display:flex;flex-direction:column;gap:3px}nav a{padding:12px 10px;border-radius:2px;display:flex;gap:10px;font-size:13px}nav a.selected{background:#214d9b}nav a:hover{background:#17428e}
     .main{margin-left:220px;width:calc(100% - 220px);min-height:100vh}.topbar{height:58px;background:#fff;border-bottom:1px solid #e3e7ee;display:flex;align-items:center;padding:0 24px;gap:28px}
     .branch{font-weight:700;color:#16366f}.global-search{width:280px;border:1px solid #e3e7ee;background:#f7f8fa;padding:9px 12px;border-radius:3px}.top-icons{margin-left:auto;color:#687285}
-    @media(max-width:750px){.sidebar{width:70px}.brand div:not(.brand-mark),.checkin-btn,nav span{display:none}.main{margin-left:70px;width:calc(100% - 70px)}.global-search{width:160px}}
-    .search-highlight{
-  background:yellow;
-  color:#000;
-  padding:1px 2px;
-  border-radius:2px;
-}
+    .checkin-btn:hover{background:#e8eefb}nav a,.checkin-btn{transition:background .15s}.sidebar a:focus-visible,.checkin-btn:focus-visible{outline:2px solid #fff}
+    .toast-region{position:fixed;right:20px;bottom:20px;z-index:2000}.toast{background:#172033;color:#fff;padding:12px 18px;border-radius:6px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+    .menu-btn{display:none;background:none;border:0;padding:8px;margin-left:-8px;border-radius:4px}.menu-btn span{display:block;width:22px;height:2px;background:#16366f;margin:5px 0}.menu-btn:hover{background:#f0f3f9}.backdrop{display:none}
+    @media(max-width:750px){.menu-btn{display:block}.sidebar{transform:translateX(-100%);transition:transform .25s ease;z-index:1100;box-shadow:none}.sidebar.open{transform:none;box-shadow:4px 0 24px rgba(0,0,0,.25)}.backdrop{display:block;position:fixed;inset:0;background:rgba(10,20,40,.45);z-index:1050}.main{margin-left:0;width:100%}.topbar{padding:0 16px;gap:14px}.global-search{width:100%;max-width:240px}.branch{display:none}.top-icons{display:none}}
   `]
 })
 export class App {
   private dialog = inject(MatDialog);
-  openCheckin(){ this.dialog.open(NewCheckinDialog,{width:'650px'}); }
+  openCheckin(){ this.menuOpen.set(false); this.dialog.open(NewCheckinDialog,{width:'650px'}); }
+  toast = inject(ToastService);
+  menuOpen = signal(false);
+
+  @HostListener('document:keydown.escape')
+  closeMenu() { this.menuOpen.set(false); }
   searchText = '';
+  private searchTimer?: ReturnType<typeof setTimeout>;
+
+  constructor() {
+    inject(Router).events
+      .pipe(filter(e => e instanceof NavigationEnd), takeUntilDestroyed())
+      .subscribe(() => setTimeout(() => this.searchPage(this.searchText), 0));
+  }
+
+  onSearchInput(text: string) {
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => this.searchPage(text), 250);
+  }
 
 searchPage(text: string) {
+  const registry = (CSS as any).highlights;
 
-  // إزالة الـ highlights القديمة
-  document.querySelectorAll('.search-highlight').forEach(el => {
-    el.replaceWith(document.createTextNode(el.textContent || ''));
-  });
-
-  text = text.trim().toLowerCase();
-
-  if (!text) {
+  if (!registry) {
     return;
   }
 
-  const root =
-    document.querySelector('.main') || document.body;
+  registry.delete('search-highlight');
 
-  const walker = document.createTreeWalker(
-    root,
-    NodeFilter.SHOW_TEXT
-  );
+  const query = text.trim().toLowerCase();
+  const root = document.querySelector('.main');
 
-  const nodes: Text[] = [];
-
-  while (walker.nextNode()) {
-
-    const node = walker.currentNode as Text;
-
-    if (
-      node.parentElement &&
-      !['SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA'].includes(
-        node.parentElement.tagName
-      ) &&
-      node.textContent?.toLowerCase().includes(text)
-    ) {
-      nodes.push(node);
-    }
-
+  if (!query || !root) {
+    return;
   }
 
-  nodes.forEach(node => {
+  const ranges: Range[] = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
 
-    const content = node.textContent || '';
+  while (walker.nextNode()) {
+    const node = walker.currentNode as Text;
+    const tag = node.parentElement?.tagName;
 
-    const escapedText =
-      text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA') {
+      continue;
+    }
 
-    const regex = new RegExp(
-      `(${escapedText})`,
-      'gi'
-    );
+    const content = (node.textContent || '').toLowerCase();
+    let index = content.indexOf(query);
 
-    const fragment = document.createDocumentFragment();
+    while (index !== -1) {
+      const range = new Range();
+      range.setStart(node, index);
+      range.setEnd(node, index + query.length);
+      ranges.push(range);
+      index = content.indexOf(query, index + query.length);
+    }
+  }
 
-    let lastIndex = 0;
-
-    content.replace(
-      regex,
-      (match, _group, offset) => {
-
-        fragment.appendChild(
-          document.createTextNode(
-            content.slice(lastIndex, offset)
-          )
-        );
-
-        const mark = document.createElement('mark');
-
-        mark.className = 'search-highlight';
-
-        mark.textContent = match;
-
-        fragment.appendChild(mark);
-
-        lastIndex = offset + match.length;
-
-        return match;
-      }
-    );
-
-    fragment.appendChild(
-      document.createTextNode(
-        content.slice(lastIndex)
-      )
-    );
-
-    node.replaceWith(fragment);
-
-  });
-
+  registry.set('search-highlight', new (window as any).Highlight(...ranges));
 }
 }
